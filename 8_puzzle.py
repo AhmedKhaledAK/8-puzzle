@@ -1,4 +1,5 @@
 import copy
+import queue
 
 class Game(object):
 
@@ -59,6 +60,7 @@ def dfs(puzzle, game):
 
     while len(frontier) != 0:
         state = frontier.pop()
+
         game.addToVisitSet(state)
         game.addToExpandedList(state)
 
@@ -77,15 +79,40 @@ def dfs(puzzle, game):
             
     return False
 
+def bfs(puzzle, game):
+    frontier = queue.Queue()
+    frontier.put(puzzle)
+
+    while frontier.empty() == False:
+        state = frontier.get()
+
+        game.addToVisitSet(state)
+        game.addToExpandedList(state)
+
+        if game.isFinalState(state):
+            return True
+
+        zi, zj = game.getZeroIdx(state)
+
+        for i in range(4):
+            newzi = zi + game.row[i]
+            newzj = zj + game.col[i]
+            if game.isValidIdx(newzi, newzj):
+                p = game.createChild(zi, zj, newzi, newzj, state)
+                if game.isVisited(p) == False:
+                    frontier.put(p)
+
+    return False
 
 puzz = [ [1,2,5], [3,4,0], [6,7,8] ]
 game = Game()
 
 zi, zj = game.getZeroIdx(puzz)
 
-#dfs(puzz, zi, zj, game)
-print(dfs(puzz, game))
+#dfs(puzz, game)
+print(bfs(puzz,game))
 print("-----")
+
 i=0
 for r in game.expandedList:
     i+=1
