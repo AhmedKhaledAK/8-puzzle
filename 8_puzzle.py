@@ -1,5 +1,6 @@
 import copy
 import queue
+import heapq
 
 class Game(object):
 
@@ -53,6 +54,15 @@ class Game(object):
                     zi, zj = i, j
                     break
         return zi, zj
+
+class State(object):
+    def __init__(self):
+        self.state = []
+        self.value = 0
+        self.zOld = -1
+
+    def __le__(self, other):
+        return self.value <= other.value
 
 def dfs(puzzle, game):
     frontier = []
