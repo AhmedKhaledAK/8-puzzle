@@ -40,7 +40,7 @@ class Game(object):
     def isValidIdx(self, i, j):
         return i >= 0 and i <= 2 and j >= 0 and j <= 2
     
-    def getZeroIdx(self, puzzle):
+    def getEIdx(self, puzzle, e):
         zi = -1
         zj = -1
         i = -1
@@ -50,19 +50,38 @@ class Game(object):
             j=-1
             for c in r:
                 j+=1
-                if c == 0:
+                if c == e:
                     zi, zj = i, j
                     break
         return zi, zj
 
-class State(object):
-    def __init__(self):
-        self.state = []
-        self.value = 0
+    def manhattanH(self, puzzle):
+        total = 0
+        for i in range(len(puzzle)):
+            for j in range(len(puzzle)):
+                val = puzzle[i][j]
+                if val is 0:
+                    continue
+        
+                distance = abs(i - int(val/3)) + abs(j - val%3)
+                #print(distance)
+                total += distance
+
+        return total
+
+
+class State(object):    
+    def __init__(self, puzzle, val):
+        self.state = puzzle
+        self.value = val
+        self.distance = 0
         self.zOld = -1
 
-    def __le__(self, other):
+    def __lt__(self, other):
         return self.value <= other.value
+
+    def _eq_(self, other):
+        return self.state == other.state
 
 def dfs(puzzle, game):
     frontier = []
@@ -77,7 +96,7 @@ def dfs(puzzle, game):
         if game.isFinalState(state):
             return True
 
-        zi, zj = game.getZeroIdx(state)
+        zi, zj = game.getEIdx(state,0)
 
         for i in range(4):
             newzi = zi + game.row[i]
@@ -102,7 +121,7 @@ def bfs(puzzle, game):
         if game.isFinalState(state):
             return True
 
-        zi, zj = game.getZeroIdx(state)
+        zi, zj = game.getEIdx(state,0)
 
         for i in range(4):
             newzi = zi + game.row[i]
@@ -114,16 +133,51 @@ def bfs(puzzle, game):
 
     return False
 
-puzz = [ [1,2,5], [3,4,0], [6,7,8] ]
+def aStar(puzzle, game):
+    frontier = []
+    heapq.heapify(frontier)
+    
+    heapq.heappush(frontier, State(puzzle, game.manhattanH(puzzle)))
+
+    while len(frontier) != 0:
+        state = heapq.heappop(frontier)
+
+        if game.isVisited(state.state) == True:
+            continue
+
+        game.addToVisitSet(state.state)
+        game.addToExpandedList(state.state)
+
+        if game.isFinalState(state.state):
+            print("STATE:", state.value)
+            return True
+        
+        zi, zj = game.getEIdx(state.state,0)
+
+        for i in range(4):
+            newzi = zi + game.row[i]
+            newzj = zj + game.col[i]
+            if game.isValidIdx(newzi, newzj):
+                p = game.createChild(zi, zj, newzi, newzj, state.state)
+                st = State(p,0)
+                st.distance = state.distance + 1
+                st.value = st.distance + game.manhattanH(p)
+                heapq.heappush(frontier, st)
+    return False
+
+puzz = [ [7,2,4], [5,0,6], [8,3,1] ]
 game = Game()
 
-zi, zj = game.getZeroIdx(puzz)
+zi, zj = game.getEIdx(puzz,0)
 
+#print(game.manhattanH(puzz))
 #dfs(puzz, game)
-print(bfs(puzz,game))
-print("-----")
 
+print(aStar(puzz,game))
+print("-----")
+"""
 i=0
 for r in game.expandedList:
     i+=1
     print(f"{i}: {r}")
+"""
