@@ -71,17 +71,16 @@ class Game(object):
 
 
 class State(object):    
-    def __init__(self, puzzle, val):
-        self.state = puzzle
+    def __init__(self, puzz, val):
+        self.puzzle = puzz
         self.value = val
         self.distance = 0
-        self.zOld = -1
 
     def __lt__(self, other):
         return self.value <= other.value
 
     def _eq_(self, other):
-        return self.state == other.state
+        return self.puzzle == other.state
 
 def dfs(puzzle, game):
     frontier = []
@@ -89,6 +88,9 @@ def dfs(puzzle, game):
 
     while len(frontier) != 0:
         state = frontier.pop()
+
+        if game.isVisited(state) == True:
+            continue
 
         game.addToVisitSet(state)
         game.addToExpandedList(state)
@@ -103,8 +105,7 @@ def dfs(puzzle, game):
             newzj = zj + game.col[i]
             if game.isValidIdx(newzi, newzj):
                 p = game.createChild(zi, zj, newzi, newzj, state)
-                if game.isVisited(p) == False:
-                    frontier.append(p)
+                frontier.append(p)
             
     return False
 
@@ -115,6 +116,9 @@ def bfs(puzzle, game):
     while frontier.empty() == False:
         state = frontier.get()
 
+        if game.isVisited(state) == True:
+            continue
+
         game.addToVisitSet(state)
         game.addToExpandedList(state)
 
@@ -128,8 +132,7 @@ def bfs(puzzle, game):
             newzj = zj + game.col[i]
             if game.isValidIdx(newzi, newzj):
                 p = game.createChild(zi, zj, newzi, newzj, state)
-                if game.isVisited(p) == False:
-                    frontier.put(p)
+                frontier.put(p)
 
     return False
 
@@ -138,38 +141,41 @@ def aStar(puzzle, game):
     heapq.heapify(frontier)
     
     heapq.heappush(frontier, State(puzzle, game.manhattanH(puzzle)))
-
+    cost = 0
     while len(frontier) != 0:
         state = heapq.heappop(frontier)
 
-        if game.isVisited(state.state) == True:
+        if game.isVisited(state.puzzle) == True:
             continue
 
-        game.addToVisitSet(state.state)
-        game.addToExpandedList(state.state)
+        game.addToVisitSet(state.puzzle)
+        game.addToExpandedList(state.puzzle)
 
-        if game.isFinalState(state.state):
+        if game.isFinalState(state.puzzle):
             print("STATE:", state.value)
+            print("cost:", cost)
             return True
+
+        cost+=1
         
-        zi, zj = game.getEIdx(state.state,0)
+        zi, zj = game.getEIdx(state.puzzle,0)
 
         for i in range(4):
             newzi = zi + game.row[i]
             newzj = zj + game.col[i]
             if game.isValidIdx(newzi, newzj):
-                p = game.createChild(zi, zj, newzi, newzj, state.state)
+                p = game.createChild(zi, zj, newzi, newzj, state.puzzle)
                 st = State(p,0)
                 st.distance = state.distance + 1
                 st.value = st.distance + game.manhattanH(p)
                 heapq.heappush(frontier, st)
     return False
 
-puzz = [ [7,2,4], [5,0,6], [8,3,1] ]
+puzz =  [[7,2,4], [5,0,6], [8,3,1]]
 game = Game()
 
 zi, zj = game.getEIdx(puzz,0)
-
+cost = 0
 #print(game.manhattanH(puzz))
 #dfs(puzz, game)
 
@@ -181,3 +187,5 @@ for r in game.expandedList:
     i+=1
     print(f"{i}: {r}")
 """
+print(len(game.expandedList))
+print(len(game.visitSet))
