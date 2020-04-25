@@ -1,6 +1,7 @@
 import copy
 import queue
 import heapq
+import math
 
 class Game(object):
 
@@ -69,6 +70,19 @@ class Game(object):
 
         return total
 
+    def euclideanH(self, puzzle):
+        total = 0
+        for i in range(len(puzzle)):
+            for j in range(len(puzzle)):
+                val = puzzle[i][j]
+                if val is 0:
+                    continue
+        
+                distance = int(math.sqrt(pow(i - int(val/3),2) + pow(j - val%3, 2)))
+                #print(distance)
+                total += distance
+
+        return total
 
 class State(object):    
     def __init__(self, puzz, val):
@@ -136,11 +150,11 @@ def bfs(puzzle, game):
 
     return False
 
-def aStar(puzzle, game):
+def aStar(puzzle, game, func):
     frontier = []
     heapq.heapify(frontier)
     
-    heapq.heappush(frontier, State(puzzle, game.manhattanH(puzzle)))
+    heapq.heappush(frontier, State(puzzle, func(puzzle)))
     cost = 0
     while len(frontier) != 0:
         state = heapq.heappop(frontier)
@@ -167,7 +181,7 @@ def aStar(puzzle, game):
                 p = game.createChild(zi, zj, newzi, newzj, state.puzzle)
                 st = State(p,0)
                 st.distance = state.distance + 1
-                st.value = st.distance + game.manhattanH(p)
+                st.value = st.distance + func(p)
                 heapq.heappush(frontier, st)
     return False
 
@@ -179,7 +193,7 @@ cost = 0
 #print(game.manhattanH(puzz))
 #dfs(puzz, game)
 
-print(aStar(puzz,game))
+print(aStar(puzz,game, game.manhattanH))
 print("-----")
 """
 i=0
