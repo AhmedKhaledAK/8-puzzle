@@ -12,6 +12,8 @@ class Game(object):
         self.paths = []
         self.row = [0, 0, -1, 1]
         self.col = [1, -1, 0, 0]
+        self.maxSearchDepth = 0
+        self.bfsPath = {}
     
     def createChild(self, zi, zj, ei, ej, puzzle):
         newPuzzle = copy.deepcopy(puzzle)
@@ -95,6 +97,21 @@ class Game(object):
                     return True
         return False
     
+    def addToPathMap(self, key, value):
+        keyPuzzle = tuple(tuple(x) for x in key)
+        valuePuzzle = tuple(tuple(x) for x in value)
+        self.bfsPath[keyPuzzle] = valuePuzzle
+
+    def setPath(self, state):
+        goalState = tuple(tuple(x) for x in state)
+        st = goalState
+        print(st)
+        while st in self.bfsPath:
+            self.path.append(st)
+            st = self.bfsPath[st]
+            print(st)
+        self.path.reverse()
+
 class State(object):    
     def __init__(self, puzz, val):
         self.puzzle = puzz
@@ -107,10 +124,11 @@ class State(object):
     def _eq_(self, other):
         return self.puzzle == other.puzzle
 
-
 def dfs(puzzle, game):
     frontier = []
     frontier.append(puzzle)
+
+    maxDepth = 0
 
     while len(frontier) != 0:
         state = frontier.pop()
@@ -155,6 +173,7 @@ def bfs(puzzle, game):
         game.addToExpandedList(state)
 
         if game.isFinalState(state):
+            game.setPath(state)
             return True
 
         zi, zj = game.getEIdx(state,0)
@@ -165,6 +184,8 @@ def bfs(puzzle, game):
             if game.isValidIdx(newzi, newzj):
                 p = game.createChild(zi, zj, newzi, newzj, state)
                 frontier.put(p)
+                if game.isVisited(p) == False:
+                    game.addToPathMap(p, state)
 
     return False
 
@@ -205,7 +226,7 @@ def aStar(puzzle, game, func):
 
 #puzz = [[7,2,4], [5,0,6], [8,3,1]]
 #puzz = [[0,1,2], [3,4,5], [6,7,8]]
-puzz = [[1,2,5], [3,4,0], [6,7,8]]
+puzz = [[7,2,4], [5,0,6], [8,3,1]]
 game = Game()
 
 zi, zj = game.getEIdx(puzz,0)
@@ -213,7 +234,7 @@ cost = 0
 #print(game.manhattanH(puzz))
 #dfs(puzz, game)
 
-print(dfs(puzz,game))
+print(bfs(puzz,game))
 print("-----")
 """
 i=0
@@ -224,3 +245,4 @@ for r in game.expandedList:
 print(len(game.expandedList))
 print(len(game.visitSet))
 print(len(game.path))
+print(game.path.pop())
