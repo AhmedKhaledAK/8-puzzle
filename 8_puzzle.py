@@ -207,6 +207,7 @@ def aStar(puzzle, game, func):
         if game.isFinalState(state.puzzle):
             print("STATE:", state.value)
             print("cost:", cost)
+            game.setPath(state.puzzle)
             return True
 
         cost+=1
@@ -222,6 +223,8 @@ def aStar(puzzle, game, func):
                 st.distance = state.distance + 1
                 st.value = st.distance + func(p)
                 heapq.heappush(frontier, st)
+                if game.isVisited(p) == False:
+                    game.addToPathMap(p, state.puzzle)
     return False
 
 #puzz = [[7,2,4], [5,0,6], [8,3,1]]
@@ -234,7 +237,7 @@ cost = 0
 #print(game.manhattanH(puzz))
 #dfs(puzz, game)
 
-print(bfs(puzz,game))
+print(aStar(puzz,game,game.manhattanH))
 print("-----")
 """
 i=0
