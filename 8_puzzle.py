@@ -91,7 +91,7 @@ class State(object):
         self.distance = 0
 
     def __lt__(self, other):
-        return self.value <= other.value
+        return self.value <=other.value
 
     def _eq_(self, other):
         return self.puzzle == other.state
