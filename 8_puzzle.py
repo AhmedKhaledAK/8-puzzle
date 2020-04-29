@@ -94,7 +94,7 @@ class State(object):
         return self.value < other.value
 
     def _eq_(self, other):
-        return self.puzzle == other.state
+        return self.puzzle == other.puzzle
 
 def dfs(puzzle, game):
     frontier = []
