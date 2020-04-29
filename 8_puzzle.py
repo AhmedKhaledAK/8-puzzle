@@ -78,7 +78,7 @@ class Game(object):
                 if val is 0:
                     continue
         
-                distance = int(math.sqrt(pow(i - int(val/3),2) + pow(j - val%3, 2)))
+                distance = math.sqrt(pow(i - int(val/3),2) + pow(j - val%3, 2))
                 #print(distance)
                 total += distance
 
@@ -91,7 +91,7 @@ class State(object):
         self.distance = 0
 
     def __lt__(self, other):
-        return self.value <=other.value
+        return self.value < other.value
 
     def _eq_(self, other):
         return self.puzzle == other.state
@@ -193,7 +193,7 @@ cost = 0
 #print(game.manhattanH(puzz))
 #dfs(puzz, game)
 
-print(aStar(puzz,game, game.manhattanH))
+print(aStar(puzz,game, game.euclideanH))
 print("-----")
 """
 i=0
