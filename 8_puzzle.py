@@ -2,6 +2,7 @@ import copy
 import queue
 import heapq
 import math
+import datetime
 
 class Game(object):
 
@@ -237,7 +238,11 @@ cost = 0
 #print(game.manhattanH(puzz))
 #dfs(puzz, game)
 
+a = datetime.datetime.now()
 print(aStar(puzz,game,game.manhattanH))
+b = datetime.datetime.now()
+c = b-a
+print(c.total_seconds())
 print("-----")
 """
 i=0
