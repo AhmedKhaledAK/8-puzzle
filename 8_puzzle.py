@@ -84,6 +84,17 @@ class Game(object):
 
         return total
 
+    def hasChildren(self, puzzle):
+        zi, zj = game.getEIdx(puzzle, 0)
+        for i in range(4):
+            newzi = zi + game.row[i]
+            newzj = zj + game.col[i]
+            if game.isValidIdx(newzi, newzj):
+                p = game.createChild(zi, zj, newzi, newzj, puzzle)
+                if game.isVisited(p) == False:
+                    return True
+        return False
+    
 class State(object):    
     def __init__(self, puzz, val):
         self.puzzle = puzz
@@ -95,6 +106,7 @@ class State(object):
 
     def _eq_(self, other):
         return self.puzzle == other.puzzle
+
 
 def dfs(puzzle, game):
     frontier = []
@@ -108,11 +120,17 @@ def dfs(puzzle, game):
 
         game.addToVisitSet(state)
         game.addToExpandedList(state)
+        game.addToPath(state)
 
         if game.isFinalState(state):
             return True
 
         zi, zj = game.getEIdx(state,0)
+
+        st = game.path[len(game.path) - 1]
+        while game.hasChildren(st) == False:
+            game.path.pop()
+            st = game.path[len(game.path) - 1]
 
         for i in range(4):
             newzi = zi + game.row[i]
@@ -185,7 +203,9 @@ def aStar(puzzle, game, func):
                 heapq.heappush(frontier, st)
     return False
 
-puzz =  [[7,2,4], [5,0,6], [8,3,1]]
+#puzz = [[7,2,4], [5,0,6], [8,3,1]]
+#puzz = [[0,1,2], [3,4,5], [6,7,8]]
+puzz = [[1,2,5], [3,4,0], [6,7,8]]
 game = Game()
 
 zi, zj = game.getEIdx(puzz,0)
@@ -193,7 +213,7 @@ cost = 0
 #print(game.manhattanH(puzz))
 #dfs(puzz, game)
 
-print(aStar(puzz,game, game.euclideanH))
+print(dfs(puzz,game))
 print("-----")
 """
 i=0
@@ -203,3 +223,4 @@ for r in game.expandedList:
 """
 print(len(game.expandedList))
 print(len(game.visitSet))
+print(len(game.path))
