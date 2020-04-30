@@ -3,6 +3,7 @@ import queue
 import heapq
 import math
 import datetime
+import itertools
 
 class Game(object):
 
@@ -112,6 +113,18 @@ class Game(object):
             st = self.bfsPath[st]
             print(st)
         self.path.reverse()
+
+    def isSolvable(self, puzzle):
+        array = list(itertools.chain.from_iterable(puzzle))
+        print(array)
+        invCount = 0
+        for i in range(8):
+            for j in range(i + 1, 9):
+                if array[j] != 0 and array[i] != 0 and array[i] > array[j]:
+                    invCount += 1
+        print("cnt:",invCount)
+        return invCount % 2 == 0
+
 
 class State(object):    
     def __init__(self, puzz, val):
@@ -230,27 +243,30 @@ def aStar(puzzle, game, func):
 
 #puzz = [[7,2,4], [5,0,6], [8,3,1]]
 #puzz = [[0,1,2], [3,4,5], [6,7,8]]
-puzz = [[7,2,4], [5,0,6], [8,3,1]]
+puzz = [[8,1,2], [0,4,3], [7,6,5]]
 game = Game()
 
-zi, zj = game.getEIdx(puzz,0)
-cost = 0
-#print(game.manhattanH(puzz))
-#dfs(puzz, game)
+if game.isSolvable(puzz):
+    zi, zj = game.getEIdx(puzz,0)
+    cost = 0
+    #print(game.manhattanH(puzz))
+    #dfs(puzz, game)
 
-a = datetime.datetime.now()
-print(aStar(puzz,game,game.manhattanH))
-b = datetime.datetime.now()
-c = b-a
-print(c.total_seconds())
-print("-----")
-"""
-i=0
-for r in game.expandedList:
+    a = datetime.datetime.now()
+    print(aStar(puzz,game,game.manhattanH))
+    b = datetime.datetime.now()
+    c = b-a
+    print(c.total_seconds())
+    print("-----")
+    """
+    i=0
+    for r in game.expandedList:
     i+=1
     print(f"{i}: {r}")
-"""
-print(len(game.expandedList))
-print(len(game.visitSet))
-print(len(game.path))
-print(game.path.pop())
+    """
+    print(len(game.expandedList))
+    print(len(game.visitSet))
+    print(len(game.path))
+    print(game.path.pop())
+else:
+    print("unsolvable")
